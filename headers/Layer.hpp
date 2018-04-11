@@ -26,6 +26,8 @@ public:
   // Kill "weak" neurons or connections and reproduce "strong" ones
   void Life();
 
+  // TODO ? "Time" -> decrease all the transmition coefficients
+
   cimg_library::CImg<unsigned int>* getImage() {return m_image;}
 
   void setImage(cimg_library::CImg<unsigned int>* image);

@@ -40,9 +40,32 @@ void Brain::Update(cimg_library::CImg<unsigned int> const* input)
 {
   // Initializing of the first neuron layer.
   // This layer is going to be the only one that will change for every frame.
-  neurons[0].setImage(input);
+  m_neurons[0]->setImage(input);
 
   // First connection layer filling
   // For the first connection layer we are looking only towards the back
+  // -We browse throught the first neuron layer
+  // -We check every loaded neurons
+  // -We transmit the signal, if the neuron is loaded, to the connection layer
+  for (int i = 0; i < m_sizeX; i++)
+  {
+    for (int j = 0; j < m_sizeY; j++)
+    {
+      if ((*m_neurons[0])(i,j,1)==255)
+      {
+        // For every connections associated with the current neuron
+        for (int k = -1; k < 1; k++)
+        {
+          for (int l = -1; l < 1; l++)
+          {
+            // We check if we are not out-of-bounds
+            if (k + 3*i >= 0 && k + 3*i <= 255 && l + 3*j >=0 && l + 3*j <= 255)
+            {
 
+            }
+          }
+        }
+      }
+    }
+  }
 }

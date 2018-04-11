@@ -122,5 +122,15 @@ void Layer::Life();
 
 void Layer::setImage(cimg_library::CImg<unsigned int>* image)
 {
-  
+  // Warning: no out-of-bounds checking here
+  for (int i = 0; i < m_sizeX; i++)
+  {
+    for (int j = 0; j < m_sizeY; j++)
+    {
+      if ((*image)(i,j)+(*m_image)(i,j,1) < 255)
+        (*m_image)(i,j,1)+=(*image)(i,j);
+      else
+        (*m_image)(i,j,1)=255;
+    }
+  }
 }
