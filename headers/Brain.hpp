@@ -33,9 +33,15 @@ public:
   // we are focusing on this output image only.
   cimg_library::CImg<unsigned int>* getOutput() {return m_neurons[m_size-1]};
 
-  // TODO: Save function
+  // TODO: Save and Load functions
 
 private:
+  // Update a connection layer given a neuron layer
+  // The connection layer with the index "layerID" is loaded with the neuron
+  // layer with the same index.
+  // "size" corresponds to the square root of the number of connections.
+  void ConnectionUpdate(int const layerID, int const size);
+
   // size is the amount of neuron layers.
   unsigned int m_size;
 

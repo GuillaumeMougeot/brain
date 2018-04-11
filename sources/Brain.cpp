@@ -36,6 +36,44 @@ void Brain::Life()
   m_neurons[m_size-1].Life();
 }
 
+// The connection layer with the index "layerID" is loaded with the neuron
+// layer with the same index.
+// "size" corresponds to the square root of the number of connections.
+void Brain::ConnectionUpdate(int const layerID, int const size)
+{
+  for (int i = 0; i < m_sizeX; i++)
+  {
+    for (int j = 0; j < m_sizeY; j++)
+    {
+      if ((*m_neurons[layerID])(i,j,1)==255)
+      {
+        // For every connections associated with the current neuron
+        for (int k = -1; k < 1; k++)
+        {
+          for (int l = -1; l < 1; l++)
+          {
+            // We check if we are not out-of-bounds
+            if (k + size*i >= 0 && k + size*i <= 255 && l + size*j >=0 && l + size*j <= 255)
+            {
+              // Load the connections
+              if ((*m_connections[layerID])(k + size*i, l + size*j, 1) + (*m_neurons[layerID])(i,j,1) <= 255)
+              {
+                (*m_connections[layerID])(k + size*i, l + size*j, 1) += (*m_neurons[layerID])(i,j,1);
+              }
+              else
+              {
+                (*m_connections[layerID])(k + size*i, l + size*j, 1) = 255;
+              }
+            }
+          }
+        }
+        // Unload the neuron
+        (*m_neurons[layerID])(i,j,1) = 0;
+      }
+    }
+  }
+}
+
 void Brain::Update(cimg_library::CImg<unsigned int> const* input)
 {
   // Initializing of the first neuron layer.
@@ -47,25 +85,7 @@ void Brain::Update(cimg_library::CImg<unsigned int> const* input)
   // -We browse throught the first neuron layer
   // -We check every loaded neurons
   // -We transmit the signal, if the neuron is loaded, to the connection layer
-  for (int i = 0; i < m_sizeX; i++)
-  {
-    for (int j = 0; j < m_sizeY; j++)
-    {
-      if ((*m_neurons[0])(i,j,1)==255)
-      {
-        // For every connections associated with the current neuron
-        for (int k = -1; k < 1; k++)
-        {
-          for (int l = -1; l < 1; l++)
-          {
-            // We check if we are not out-of-bounds
-            if (k + 3*i >= 0 && k + 3*i <= 255 && l + 3*j >=0 && l + 3*j <= 255)
-            {
+  ConnectionUpdate(0, 3);
 
-            }
-          }
-        }
-      }
-    }
-  }
+  
 }
