@@ -7,7 +7,9 @@ Layer::Layer(unsigned int sizeX,
   unsigned int sizeY,
   unsigned int colors,
   float lifeThreshold,
-  float initThreshold)
+  float initThreshold,
+  unsigned int transmissionThreshold
+)
 {
   // Create an image of width "sizeX", height "sizeY", depth one and with
   // "colors" as image spectrum (3 = RGB, 1 = B&W)
@@ -22,6 +24,13 @@ Layer::Layer(unsigned int sizeX,
     m_initThreshold = initThreshold;
   }
 
+  if (transmissionThreshold > 255)
+  {
+    std::cout << "[Error][Layer.hpp] Your transmission threshold value is wrong.
+      Please put a value between 0 and 255." << std::endl;
+    transmissionThreshold = 255;
+  }
+
   // Initializing the image with random empty and non-empty boxes.
   // This should be improved later thanks to inheritance.
   for (int i = 0; i < sizeX; i++)
@@ -32,7 +41,7 @@ Layer::Layer(unsigned int sizeX,
 
       if (alea < initThreshold)
       {
-        (*m_image)(i, j) = 124;
+        (*m_image)(i, j) = transmissionThreshold;
       }
     }
   }

@@ -15,11 +15,13 @@ public:
   //  -colors: number of color channels
   //  -lifeThreshold: reproduce or kill threshold
   //  -initThreshold: proportion of active neurons or connections
+  //  -transmissionThreshold: btwn 0 and 255
   Layer(unsigned int sizeX,
     unsigned int sizeY,
     unsigned int colors,
     float lifeThreshold,
-    float initThreshold);
+    float initThreshold,
+    unsigned int transmissionThreshold);
 
   ~Layer();
 
