@@ -24,6 +24,7 @@ Brain::Brain(unsigned int size, unsigned int sizeX, unsigned int sizeY)
 
   for (unsigned int i = 2; i < size-1; i++)
   {
+    // The transmission coefficient increase with depth
     if (i < 124)
     {
       m_neurons.push_back(new Layer(sizeX, sizeY, 2, 0.9, i));
@@ -144,5 +145,8 @@ void Brain::Update(cimg_library::CImg<unsigned int> const* input)
   ConnectionUpdate(1, 3);
   DirectNeuronUpdate(1, 3);
 
+  for (unsigned int i = 2; i < m_size; i++)
+  {
 
+  }
 }
