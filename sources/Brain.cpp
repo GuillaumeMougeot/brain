@@ -18,7 +18,11 @@ Brain::Brain(unsigned int size, unsigned int sizeX, unsigned int sizeY)
   // small value and will do several other test thereafter.
   m_connections.push_back(new Layer(sizeX*3, sizeY*3, 2, 0.9, 1));
 
-  for (unsigned int i = 1; i < size-1; i++)
+  // We do the same with the two second connection layers
+  m_neurons.push_back(new Layer(sizeX, sizeY, 2, 0.9, 1));
+  m_connections.push_back(new Layer(sizeX*3, sizeY*3, 2, 0.9, 1));
+
+  for (unsigned int i = 2; i < size-1; i++)
   {
     if (i < 124)
     {
@@ -60,7 +64,7 @@ void Brain::ConnectionUpdate(int const layerID, int const size)
           for (int l = -1; l < 1; l++)
           {
             // We check if we are not out-of-bounds
-            if (k + size*i >= 0 && k + size*i <= 255 && l + size*j >=0 && l + size*j <= 255)
+            if (k + size*i >= 0 && k + size*i <= m_sizeX * size && l + size*j >=0 && l + size*j <= m_sizeY * size)
             {
               // Load the connections
               if ((*m_connections[layerID])(k + size*i, l + size*j, 1) + (*m_neurons[layerID])(i,j,1) <= 255)
@@ -81,6 +85,44 @@ void Brain::ConnectionUpdate(int const layerID, int const size)
   }
 }
 
+
+void Brain::DirectNeuronUpdate(int const layerID, int const size)
+{
+  // We browse the connections layer.
+  for (int i = 0; i < m_sizeX; i++)
+  {
+    for (int j = 0; j < m_sizeY; j++)
+    {
+      for (int k = -1; k < 1; k++)
+      {
+        for (int l = -1; l < 1; l++)
+        {
+          // We check if we are not out-of-bounds
+          if (k + size*i >= 0 && k + size*i <= m_sizeX * size && l + size*j >=0 && l + size*j <= m_sizeY * size)
+          {
+            // If the connection is ready to be unloaded.
+            if ((*m_connections[layerID])(k + size*i, l + size*j, 1) == 255)
+            {
+              // If we not exceed 255
+              if ((*m_connections[layerID])(k + size*i, l + size*j, 1) + (*m_neurons[layerID+1])(i + k,j + l,1) < 255)
+              {
+                (*m_neurons[layerID+1])(i + k,j + l,1) += (*m_connections[layerID])(k + size*i, l + size*j, 0);
+              }
+              else
+              {
+                (*m_neurons[layerID+1])(i + k,j + l,1) = 255;
+              }
+
+              // We unload the connection
+              (*m_connections[layerID])(k + size*i, l + size*j, 1) = 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 void Brain::Update(cimg_library::CImg<unsigned int> const* input)
 {
   // Initializing of the first neuron layer.
@@ -95,37 +137,12 @@ void Brain::Update(cimg_library::CImg<unsigned int> const* input)
   ConnectionUpdate(0, 3);
 
   // Update of the second neurons layer.
+  DirectNeuronUpdate(0, 3);
 
-  // We browse the second neuron layer.
-  for (int i = 0; i < m_sizeX; i++)
-  {
-    for (int j = 0; j < m_sizeY; j++)
-    {
-      if ((*m_neurons[1])(i,j,1)==255)
-      {
-        // For every connections associated with the current neuron
-        for (int k = -1; k < 1; k++)
-        {
-          for (int l = -1; l < 1; l++)
-          {
-            // We check if we are not out-of-bounds
-            if (k + size*i >= 0 && k + size*i <= 255 && l + size*j >=0 && l + size*j <= 255)
-            {
-              // Load the connections
-              if ((*m_connections[layerID])(k + size*i, l + size*j, 1) + (*m_neurons[layerID])(i,j,1) <= 255)
-              {
-                (*m_connections[layerID])(k + size*i, l + size*j, 1) += (*m_neurons[layerID])(i,j,0);
-              }
-              else
-              {
-                (*m_connections[layerID])(k + size*i, l + size*j, 1) = 255;
-              }
-            }
-          }
-        }
-        // Unload the neuron
-        (*m_neurons[layerID])(i,j,1) = 0;
-      }
-    }
-  }
+  // We do the same with the next neuron layer as a feedback is not necessary
+  // so close to the input layer.
+  ConnectionUpdate(1, 3);
+  DirectNeuronUpdate(1, 3);
+
+
 }
