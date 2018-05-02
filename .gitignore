@@ -2,3 +2,4 @@ CImg/
 Eigen/
 Makefile
 obj/
+cifar/
