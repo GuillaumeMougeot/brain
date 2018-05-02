@@ -124,6 +124,106 @@ void Brain::DirectNeuronUpdate(int const layerID, int const size)
   }
 }
 
+
+void Brain::NeuronUpdate(int const layerID)
+{
+  int rear_x[8] = {-2, -2, -2, -1, 2, 2, 2, 1};
+  int rear_y[8] = {-2, -1, 2, 2, 2, 1, -1, -1};
+
+  int rear_x_n[8] = {-1, -1, -1, 0, 1, 1, 1, 0};
+  int rear_y_n[8] = {-1, 0, 1, 1, 1, 0, -1, -1};
+
+  int side_x[8] = {-2, -2, 0, 1, 2, 2, 0, -1};
+  int side_y[8] = {0, 1, 2, 2, 0, -1, -2, -2};
+
+  int side_x_n[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
+  int side_y_n[8] = {0, 1, 1, 1, 0, -1, -1, -1};
+
+  // We browse the connections layer.
+  for (int i = 0; i < m_sizeX; i++)
+  {
+    for (int j = 0; j < m_sizeY; j++)
+    {
+      // Feed the foward neuron layer
+      for (int k = -1; k < 1; k++)
+      {
+        for (int l = -1; l < 1; l++)
+        {
+          // We check if we are not out-of-bounds
+          if (k + 5*i >= 0 && k + 5*i <= m_sizeX * 5 && l + 5*j >=0 && l + 5*j <= m_sizeY * 5)
+          {
+            // If the connection is ready to be unloaded.
+            if ((*m_connections[layerID])(k + 5*i, l + 5*j, 1) == 255)
+            {
+              // If we not exceed 255
+              if ((*m_connections[layerID])(k + 5*i, l + 5*j, 1) + (*m_neurons[layerID+1])(i + k,j + l,1) < 255)
+              {
+                (*m_neurons[layerID+1])(i + k,j + l,1) += (*m_connections[layerID])(k + 5*i, l + 5*j, 0);
+              }
+              else
+              {
+                (*m_neurons[layerID+1])(i + k,j + l,1) = 255;
+              }
+
+              // We unload the connection
+              (*m_connections[layerID])(k + 5*i, l + 5*j, 1) = 0;
+            }
+          }
+        }
+      }
+
+
+      for (int k = 0; k < 8; k++)
+      {
+        // Feed the side neuron layer
+        // We check if we are not out-of-bounds
+        if (side_x[k] + 5*i >= 0 && side_x[k] + 5*i <= m_sizeX * 5 && side_y[k] + 5*j >=0 && side_y[k] + 5*j <= m_sizeY * 5)
+        {
+          // If the connection is ready to be unloaded.
+          if ((*m_connections[layerID])(side_x[k] + 5*i, side_y[k] + 5*j, 1) == 255)
+          {
+            // If we not exceed 255
+            if ((*m_connections[layerID])(side_x[k] + 5*i, side_y[k] + 5*j, 1) + (*m_neurons[layerID])(i + side_x_n[k],j + side_y_n[k],1) < 255)
+            {
+              (*m_neurons[layerID])(i + side_x_n[k],j + side_y_n[k],1) += (*m_connections[layerID])(side_x[k] + 5*i, side_y[k] + 5*j, 0);
+            }
+            else
+            {
+              (*m_neurons[layerID])(i + side_x_n[k],j + side_y_n[k],1) = 255;
+            }
+
+            // We unload the connection
+            (*m_connections[layerID])(side_x[k] + 5*i, side_y[k] + 5*j, 1) = 0;
+          }
+        }
+
+        // Feed the rear neuron layer
+        // We check if we are not out-of-bounds
+        if (rear_x[k] + 5*i >= 0 && rear_x[k] + 5*i <= m_sizeX * 5 && rear_y[k] + 5*j >=0 && rear_y[k] + 5*j <= m_sizeY * 5)
+        {
+          // If the connection is ready to be unloaded.
+          if ((*m_connections[layerID])(rear_x[k] + 5*i, rear_y[k] + 5*j, 1) == 255)
+          {
+            // If we not exceed 255
+            if ((*m_connections[layerID])(rear_x[k] + 5*i, rear_y[k] + 5*j, 1) + (*m_neurons[layerID-1])(i + rear_x[k],j + rear_y[k],1) < 255)
+            {
+              (*m_neurons[layerID-1])(i + rear_x_n[k],j + rear_y_n[k],1) += (*m_connections[layerID])(rear_x_n[k] + 5*i, rear_y_n[k] + 5*j, 0);
+            }
+            else
+            {
+              (*m_neurons[layerID-1])(i + rear_x_n[k],j + rear_y_n[k],1) = 255;
+            }
+
+            // We unload the connection
+            (*m_connections[layerID])(rear_x[k] + 5*i, rear_y[k] + 5*j, 1) = 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+
 void Brain::Update(cimg_library::CImg<unsigned int> const* input)
 {
   // Initializing of the first neuron layer.
@@ -147,6 +247,7 @@ void Brain::Update(cimg_library::CImg<unsigned int> const* input)
 
   for (unsigned int i = 2; i < m_size; i++)
   {
-
+    ConnectionUpdate(i, 5);
+    NeuronUpdate(i);
   }
 }

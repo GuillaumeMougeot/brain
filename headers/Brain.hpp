@@ -42,9 +42,13 @@ private:
   // "size" corresponds to the square root of the number of connections.
   void ConnectionUpdate(int const layerID, int const size);
 
-  // This method unload the connection layer into the next neuron layer only,
+  // This method unloads the connection layer into the next neuron layer only,
   // without any back or side transmission.
   void DirectNeuronUpdate(int const layerID, int const size);
+
+  // Unloads the connection layer into three different layers:
+  // the previous, the current and the next layer
+  void NeuronUpdate(int const layerID);
 
   // size is the amount of neuron layers.
   unsigned int m_size;
